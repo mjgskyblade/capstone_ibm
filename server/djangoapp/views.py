@@ -145,3 +145,12 @@ def post_review(data_dict, dealer_id):  # Add dealer_id parameter
         return response.json()
     except:
         print("Network exception occurred")
+
+def fetch_reviews(request):
+    try:
+        # Make a GET request to fetch all reviews from your backend API
+        reviews = get_request("/fetchReviews")
+        return JsonResponse({"status": 200, "reviews": reviews})
+    except Exception as e:
+        # Return an error response if there's an exception
+        return JsonResponse({"status": 500, "error": str(e)})
