@@ -15,6 +15,8 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from .populate import initiate
 from .restapis import get_request, analyze_review_sentiments, post_review
+from django.conf import settings
+
 
 def get_cars(request):
     count = CarMake.objects.filter().count()
@@ -22,14 +24,16 @@ def get_cars(request):
     if count == 0:
         initiate()
 
-    car_models = CarModel.objects.select_related('make')  # Updated 'car_make' to 'make'
+    car_models = CarModel.objects.select_related('car_make')
     cars = []
     for car_model in car_models:
-        cars.append({"CarModel": car_model.name, "CarMake": car_model.make.name})
+        cars.append({"CarModel": car_model.name, "CarMake": car_model.car_make.name})
+        
     return JsonResponse({"CarModels": cars})
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
+
 
 
 # Create your views here.
@@ -120,9 +124,10 @@ def get_dealer_details(request, dealer_id):
         return JsonResponse({"status":400,"message":"Bad Request"})
 
 # Create a `add_review` view to submit a review
-def add_review(request):
+def add_review(request, dealer_id):  # Add dealer_id parameter
     if(request.user.is_anonymous == False):
         data = json.loads(request.body)
+        data['dealer_id'] = dealer_id  # Add dealer_id to the data dictionary
         try:
             response = post_review(data)
             return JsonResponse({"status":200})
@@ -130,3 +135,13 @@ def add_review(request):
             return JsonResponse({"status":401,"message":"Error in posting review"})
     else:
         return JsonResponse({"status":403,"message":"Unauthorized"})
+
+def post_review(data_dict, dealer_id):  # Add dealer_id parameter
+    request_url = backend_url + "/insert_review"
+    data_dict['dealer_id'] = dealer_id  # Add dealer_id to the data dictionary
+    try:
+        response = requests.post(request_url, json=data_dict)
+        print(response.json())
+        return response.json()
+    except:
+        print("Network exception occurred")

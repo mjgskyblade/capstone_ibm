@@ -11,6 +11,13 @@ sentiment_analyzer_url = os.getenv(
     'sentiment_analyzer_url',
     default="http://localhost:5050/")
 
+def fetch_reviews():
+    # Define the endpoint for fetching reviews
+    endpoint = "/fetchReviews"
+    # Make a GET request to fetch reviews from the backend
+    reviews = get_request(endpoint)
+    return reviews
+    
 def get_request(endpoint, **kwargs):
 # Add code for get requests to back end
     params = ""
@@ -30,7 +37,6 @@ def get_request(endpoint, **kwargs):
         print("Network exception occurred")
 def analyze_review_sentiments(text):
     request_url = sentiment_analyzer_url+"analyze/"+text
-# Add code for retrieving sentiments
     try:
         # Call get method of requests library with URL and parameters
         response = requests.get(request_url)
