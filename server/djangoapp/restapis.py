@@ -1,6 +1,7 @@
 # Uncomment the imports below before you add the function code
 import requests
 import os
+import json
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -35,6 +36,7 @@ def get_request(endpoint, **kwargs):
     except:
         # If any error occurs
         print("Network exception occurred")
+
 def analyze_review_sentiments(text):
     request_url = sentiment_analyzer_url+"analyze/"+text
     try:
@@ -45,12 +47,23 @@ def analyze_review_sentiments(text):
         print(f"Unexpected {err=}, {type(err)=}")
         print("Network exception occurred")
 
-def post_review(data_dict):
-# Add code for posting review
-    request_url = backend_url+"/insert_review"
+def post_review(data_dict, dealer_id):  # dealer_id parameter
+    request_url = backend_url + "/insert_review"
+    data_dict['dealer_id'] = dealer_id  # dealer_id to the data dictionary
     try:
-        response = requests.post(request_url,json=data_dict)
+        response = requests.post(request_url, json=data_dict)
         print(response.json())
         return response.json()
     except:
         print("Network exception occurred")
+
+def add_review(request, dealer_id):  # dealer_id parameter
+    if(request.user.is_anonymous == False):
+        data = json.loads(request.body)
+        try:
+            response = post_review(data, dealer_id)  # Pass dealer_id to post_review
+            return JsonResponse({"status": 200})
+        except:
+            return JsonResponse({"status": 401, "message": "Error in posting review"})
+    else:
+        return JsonResponse({"status": 403, "message": "Unauthorized"})

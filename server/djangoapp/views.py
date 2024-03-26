@@ -137,6 +137,7 @@ def add_review(request, dealer_id):  # Add dealer_id parameter
         return JsonResponse({"status":403,"message":"Unauthorized"})
 
 def post_review(data_dict, dealer_id):  # Add dealer_id parameter
+    backend_url = settings.backend_url  
     request_url = backend_url + "/insert_review"
     data_dict['dealer_id'] = dealer_id  # Add dealer_id to the data dictionary
     try:
@@ -148,7 +149,7 @@ def post_review(data_dict, dealer_id):  # Add dealer_id parameter
 
 def fetch_reviews(request):
     try:
-        # Make a GET request to fetch all reviews from your backend API
+        # Make a GET request to fetch all reviews from backend API
         reviews = get_request("/fetchReviews")
         return JsonResponse({"status": 200, "reviews": reviews})
     except Exception as e:
